@@ -175,6 +175,22 @@ public:
 	void TurnAtRate(float Rate);
 	void LookUpAtRate(float Rate);
 
+	void Dash();
+	void StopDash();
+	void ResetDash();
+	
+	UPROPERTY()
+	FTimerHandle DashTimer;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Dash")
+	float DashDistance;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Dash")
+	float DashCoolDown;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Dash")
+	float DashStopTime;
+
+	bool bCanDash;
+
+
 	// 움직임 상태를 확인하여 sprint 가능하게 하기
 	bool bMovingForward;
 	bool bMovingRight;

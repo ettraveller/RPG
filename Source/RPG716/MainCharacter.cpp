@@ -22,6 +22,7 @@
 #include "RPGSaveGame.h"
 #include "ItemStorage.h"
 
+
 // Sets default values
 AMainCharacter::AMainCharacter()
 {
@@ -59,7 +60,7 @@ AMainCharacter::AMainCharacter()
 
 	MaxHealth = 100.f;
 	Health = 65.f;
-	MaxStamina = 150.f;
+	MaxStamina = 300.f;
 	Stamina = 120.f;
 	Coins = 0;
 
@@ -86,6 +87,11 @@ AMainCharacter::AMainCharacter()
 
 	bMovingForward = false;
 	bMovingRight = false;
+
+	bCanDash = true;
+	DashDistance = 1200.f;
+	DashCoolDown = 1.0f;
+	DashStopTime = 0.7f;
 
 }
 
@@ -307,6 +313,8 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction(TEXT("ESC"), IE_Pressed, this, &AMainCharacter::ESCDown);
 	PlayerInputComponent->BindAction(TEXT("ESC"), IE_Released, this, &AMainCharacter::ESCUp);
 
+	PlayerInputComponent->BindAction(TEXT("Dash"), IE_Pressed, this, &AMainCharacter::Dash);
+	
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AMainCharacter::MoveForward);
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AMainCharacter::MoveRight);
 	PlayerInputComponent->BindAxis(TEXT("TurnRate"), this, &AMainCharacter::TurnAtRate);
@@ -389,6 +397,36 @@ void AMainCharacter::TurnAtRate(float Rate)
 void AMainCharacter::LookUpAtRate(float Rate)
 {
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+}
+
+
+void AMainCharacter::Dash()
+{
+    
+	if (bCanDash && (Stamina >= 30))
+	{
+	    GetCharacterMovement()->BrakingFrictionFactor = 0.f;
+		FVector DashLocation = FollowCamera->GetForwardVector();
+		LaunchCharacter(FVector(DashLocation.X, DashLocation.Y, 0).GetSafeNormal() * DashDistance, true, true);
+		Stamina -= 30.f;
+		bCanDash = false;
+		GetWorldTimerManager().SetTimer(DashTimer, this, &AMainCharacter::StopDash, DashStopTime, false);
+	}
+
+}
+
+
+void AMainCharacter::StopDash()
+{
+	GetCharacterMovement()->StopMovementImmediately();
+	GetWorldTimerManager().SetTimer(DashTimer, this, &AMainCharacter::ResetDash, DashCoolDown, false);
+	GetCharacterMovement()->BrakingFrictionFactor = 2.f;
+}
+
+
+void AMainCharacter::ResetDash()
+{
+    bCanDash = true;
 }
 
 // 폭탄 닿으면 health 값 줄어들게 하기
