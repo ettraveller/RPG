@@ -69,6 +69,7 @@ AMainCharacter::AMainCharacter()
 	bShiftKeyDown = false;
 	bLMBDown = false;
 	bESCDown = false;
+	bInventoryDown = false;
 
 	// ENUMS 들 initialize 하는것
 	// Initialize Enums
@@ -307,6 +308,9 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction(TEXT("ESC"), IE_Pressed, this, &AMainCharacter::ESCDown);
 	PlayerInputComponent->BindAction(TEXT("ESC"), IE_Released, this, &AMainCharacter::ESCUp);
 
+	PlayerInputComponent->BindAction(TEXT("Inventory"), IE_Pressed, this, &AMainCharacter::InventoryDown);
+	PlayerInputComponent->BindAction(TEXT("Inventory"), IE_Released, this, &AMainCharacter::InventoryUp);
+
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AMainCharacter::MoveForward);
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AMainCharacter::MoveRight);
 	PlayerInputComponent->BindAxis(TEXT("TurnRate"), this, &AMainCharacter::TurnAtRate);
@@ -530,6 +534,25 @@ void AMainCharacter::ESCUp()
 	bESCDown = false;
 }
 
+
+// 인벤토리창 껐다 켰다 하기.
+void AMainCharacter::InventoryDown()
+{
+	bInventoryDown = true;
+	if (MainPlayerController)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Inventory Down"));
+		MainPlayerController->ToggleInventoryMenu();
+	}
+}
+
+
+void AMainCharacter::InventoryUp()
+{
+	bInventoryDown = false;
+	
+}
+
 void AMainCharacter::SetEquipWeapon(AWeapon* WeaponToSet)
 {
 	// 기존의 weapon 을 가지고 있다가 다른 weapon 착용시 BP 에서 기존의 Weapon 사라짐
@@ -730,7 +753,6 @@ void AMainCharacter::LoadGame(bool SetPosition)
 			FString WeaponName = LoadGameInstance->CharacterStats.WeaponName;
 
 			// 불러온 weaponName 이 map 에있는것인지 확인후에 착용시키기
-
 			if (Weapons->WeaponMap.Contains(WeaponName))
 			{
 				AWeapon* WeaponToEquip = GetWorld()->SpawnActor<AWeapon>(Weapons->WeaponMap[WeaponName]);
@@ -794,8 +816,6 @@ void AMainCharacter::LoadGameNoSwitch()
 	SetMovementStatus(EMovementStatus::EMS_Normal);
 	GetMesh()->bPauseAnims = false;
 	GetMesh()->bNoSkeletonUpdate = false;
-
-
 }
 
 

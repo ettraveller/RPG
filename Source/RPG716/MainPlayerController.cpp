@@ -10,6 +10,7 @@ void AMainPlayerController::BeginPlay()
 {
     Super::BeginPlay();
 
+
     // 기본 HUD viewport 에 보이게 하는것
     if (HUDOverlayAsset)
     {
@@ -40,6 +41,18 @@ void AMainPlayerController::BeginPlay()
 		{
             PauseMenu->AddToViewport();
             PauseMenu->SetVisibility(ESlateVisibility::Hidden);
+		}
+
+	}
+
+	// Inventory viewport 에 보이게 하는것
+	if (WInventory)
+	{
+		Inventory = CreateWidget<UUserWidget>(this, WInventory);
+		if (Inventory)
+		{
+			Inventory->AddToViewport();
+			Inventory->SetVisibility(ESlateVisibility::Hidden);
 		}
 
 	}
@@ -102,7 +115,6 @@ void AMainPlayerController::RemovePauseMenu_Implementation()
 {
     if (PauseMenu)
 	{
-
         GameModeOnly();
 		bShowMouseCursor = false;
 
@@ -129,4 +141,43 @@ void AMainPlayerController::GameModeOnly()
 	// pasuemenu 들이 사라지면 마우스 커서도 사라지고, 일반적인 게임모드로 바꾸기
 	FInputModeGameOnly InputModeGameOnly;
 	SetInputMode(InputModeGameOnly);
+}
+
+void AMainPlayerController::DisplayInventoryMenu_Implementation()
+{
+	if (Inventory)
+	{
+		bInventoryMenu = true;
+        Inventory->SetVisibility(ESlateVisibility::Visible);
+
+		// 게임 실행시 마우스크 커서가 보이진 않지만 커서가 있는것처럼 해서 pausemenu 버튼들누를수 있게 하는것
+		FInputModeGameAndUI InputModeGameAndUI;
+		SetInputMode(InputModeGameAndUI);
+		// 밑에를 해줘야지 마우스크 커서가 viewport 에서 보임
+		bShowMouseCursor = true;
+	}
+
+}
+
+void AMainPlayerController::RemoveInvnetoryMenu_Implementation()
+{
+	if (Inventory)
+	{
+		GameModeOnly();
+		bShowMouseCursor = false;
+
+		bInventoryMenu = false;
+		Inventory->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
+void AMainPlayerController::ToggleInventoryMenu()
+{
+	if (bInventoryMenu)
+	{
+		RemoveInvnetoryMenu_Implementation();
+	}
+	else {
+		DisplayInventoryMenu_Implementation();
+	}
 }
