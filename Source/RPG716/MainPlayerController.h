@@ -40,6 +40,13 @@ public:
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Widgets")
 	UUserWidget* PauseMenu;
 
+	// Inventory HUD 만들기
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<UUserWidget> WInventory;
+
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Widgets")
+	UUserWidget* Inventory;
+
 	bool bEnemyHealthBarVisible;
 
 	void DisplayEnemyHealthBar();
@@ -57,7 +64,19 @@ public:
 
 	void TogglePauseMenu();
 
+	UFUNCTION(BlueprintCallable)
 	void GameModeOnly();
+
+	// 인벤토리 창 이벤트
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "HUD")
+	void DisplayInventoryMenu();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "HUD")
+	void RemoveInvnetoryMenu();
+
+	void ToggleInventoryMenu();
+
+	bool bInventoryMenu;
 
 protected:
 

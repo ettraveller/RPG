@@ -29,7 +29,7 @@ AMainCharacter::AMainCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	// CameraBoom = Ãæµ¹ÀÌ ÀÖ´Â°æ¿ì ÇÃ·¹ÀÌ¾î¸¦ ÇâÇØ ´ç±è
+	// CameraBoom = ì¶©ëŒì´ ìˆëŠ”ê²½ìš° í”Œë ˆì´ì–´ë¥¼ í–¥í•´ ë‹¹ê¹€
 	// Create CameraBoom( pull toward thee player if there's a collison)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(GetRootComponent());
@@ -39,7 +39,7 @@ AMainCharacter::AMainCharacter()
 	GetCapsuleComponent()->SetCapsuleSize(48.f, 88.f);
 		
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);//socket = ¿¡¼ÂÀ» ³ÖÀ»¼öÀÖ´Â Àå¼Ò
+	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);//socket = ì—ì…‹ì„ ë„£ì„ìˆ˜ìˆëŠ” ì¥ì†Œ
 	FollowCamera->bUsePawnControlRotation = false;
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
@@ -47,12 +47,12 @@ AMainCharacter::AMainCharacter()
 	BaseTurnRate = 65.f;
 	BaseLookUpRate = 65.f;
 
-	//Ä«¸Ş¶ó¿Í Ä³¸¯ÅÍ ·ÎÅ×ÀÌ¼Ç ºĞ¸®
+	//ì¹´ë©”ë¼ì™€ ìºë¦­í„° ë¡œí…Œì´ì…˜ ë¶„ë¦¬
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationPitch = false;
 
-	//Ä³¸¯ÅÍ°¡ ÀÚµ¿À¸·Î ÀÌµ¿¹æÇâ¿¡ µû¶ó ¹æÇâ¼³Á¤
+	//ìºë¦­í„°ê°€ ìë™ìœ¼ë¡œ ì´ë™ë°©í–¥ì— ë”°ë¼ ë°©í–¥ì„¤ì •
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 840.f, 0.f);
 	GetCharacterMovement()->JumpZVelocity = 650.f;
@@ -70,8 +70,9 @@ AMainCharacter::AMainCharacter()
 	bShiftKeyDown = false;
 	bLMBDown = false;
 	bESCDown = false;
+	bInventoryDown = false;
 
-	// ENUMS µé initialize ÇÏ´Â°Í
+	// ENUMS ë“¤ initialize í•˜ëŠ”ê²ƒ
 	// Initialize Enums
 	MovementStatus = EMovementStatus::EMS_Normal;
 	StaminaStatus = EStaminaStatus::ESS_Normal;
@@ -82,7 +83,7 @@ AMainCharacter::AMainCharacter()
 	InterSpeed = 15.f;
 	bInterToEnemy = false;
 
-	// Enemy healthbar HUD ½Ã ÇÊ¿ä
+	// Enemy healthbar HUD ì‹œ í•„ìš”
 	bHasCombatTarget = false;
 
 	bMovingForward = false;
@@ -95,23 +96,23 @@ AMainCharacter::AMainCharacter()
 
 }
 
-// PickupLocation µéÀÇ À§Ä¡¿¡ µğ¹ö±× ±×¸² ³Ö¾îÁÖ±â
+// PickupLocation ë“¤ì˜ ìœ„ì¹˜ì— ë””ë²„ê·¸ ê·¸ë¦¼ ë„£ì–´ì£¼ê¸°
 void AMainCharacter::ShowPickUpLocation()
 {
-// tarray for¹® µ¹¸®´Â°ÅÀÓ
+// tarray forë¬¸ ëŒë¦¬ëŠ”ê±°ì„
 	/*for (int32 i = 0; i < PickUpLocations.Num(); i++)
 	{
 		UKismetSystemLibrary::DrawDebugSphere(this, PickUpLocations[i], 35.f, 12, FLinearColor::Blue, 5.f, 2.f);
 	}*/
 
-	//for¹® Á¶°Ç¿¬»ê¹æ¹ı (auto ±îÁö »ç¿ë)
+	//forë¬¸ ì¡°ê±´ì—°ì‚°ë°©ë²• (auto ê¹Œì§€ ì‚¬ìš©)
 	for (FVector Location : PickUpLocations)
 	{
 		UKismetSystemLibrary::DrawDebugSphere(this, Location, 35.f, 12, FLinearColor::Blue, 5.f, 2.f);
 	}
 }
 
-// Å° ´­¸®´Â°Í¿¡ µû¶ó sprinting ½ºÇÇµå·Î Çß´Ù°¡ ÀÏ¹İ ´Ş¸®±â ½ºÇÇµå·Î Çß´Ù°¡
+// í‚¤ ëˆŒë¦¬ëŠ”ê²ƒì— ë”°ë¼ sprinting ìŠ¤í”¼ë“œë¡œ í–ˆë‹¤ê°€ ì¼ë°˜ ë‹¬ë¦¬ê¸° ìŠ¤í”¼ë“œë¡œ í–ˆë‹¤ê°€
 void AMainCharacter::SetMovementStatus(EMovementStatus Status)
 {
     MovementStatus = Status;
@@ -146,7 +147,7 @@ void AMainCharacter::BeginPlay()
 
 	LoadGameNoSwitch();
 
-	// ´Ù¸¥¸ÊÀ¸·Î ·Îµå½Ã ¹Ù·Î °ÔÀÓ¸ğµå·Î ÀüÈ¯µÉ¼ö ÀÖ°Ô ÇÏ±â
+	// ë‹¤ë¥¸ë§µìœ¼ë¡œ ë¡œë“œì‹œ ë°”ë¡œ ê²Œì„ëª¨ë“œë¡œ ì „í™˜ë ìˆ˜ ìˆê²Œ í•˜ê¸°
 	if (MainPlayerController)
 	{
 		MainPlayerController->GameModeOnly();
@@ -169,7 +170,7 @@ void AMainCharacter::Tick(float DeltaTime)
 	switch (StaminaStatus)
 	{
 	
-		// stamina »óÅÂ¿¡ µû¶ó »óÅÂ ¹Ù´Ù¸£°Ô ÇÒ¶§
+		// stamina ìƒíƒœì— ë”°ë¼ ìƒíƒœ ë°”ë‹¤ë¥´ê²Œ í• ë•Œ
 	case EStaminaStatus::ESS_Normal:
 		//shiftKey Down
 		if (bShiftKeyDown)
@@ -183,7 +184,7 @@ void AMainCharacter::Tick(float DeltaTime)
 			{
 			    Stamina -= DeltaStamina;
 			}
-			// WASD ¿òÁ÷ÀÓÀÌ ÀÖ¾î¾ßÁö Sprinting °¡´ÉÇÏ°Ô
+			// WASD ì›€ì§ì„ì´ ìˆì–´ì•¼ì§€ Sprinting ê°€ëŠ¥í•˜ê²Œ
 			if (bMovingForward || bMovingRight)
 			{
 				SetMovementStatus(EMovementStatus::EMS_Sprinting);
@@ -219,7 +220,7 @@ void AMainCharacter::Tick(float DeltaTime)
 			else
 			{
 				Stamina -= DeltaStamina;
-				// WASD ¿òÁ÷ÀÓÀÌ ÀÖ¾î¾ßÁö Sprinting °¡´ÉÇÏ°Ô
+				// WASD ì›€ì§ì„ì´ ìˆì–´ì•¼ì§€ Sprinting ê°€ëŠ¥í•˜ê²Œ
 				if (bMovingForward || bMovingRight)
 				{
 					SetMovementStatus(EMovementStatus::EMS_Sprinting);
@@ -313,8 +314,14 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction(TEXT("ESC"), IE_Pressed, this, &AMainCharacter::ESCDown);
 	PlayerInputComponent->BindAction(TEXT("ESC"), IE_Released, this, &AMainCharacter::ESCUp);
 
+
+	PlayerInputComponent->BindAction(TEXT("Inventory"), IE_Pressed, this, &AMainCharacter::InventoryDown);
+	PlayerInputComponent->BindAction(TEXT("Inventory"), IE_Released, this, &AMainCharacter::InventoryUp);
+
+
 	PlayerInputComponent->BindAction(TEXT("Dash"), IE_Pressed, this, &AMainCharacter::Dash);
 	
+
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AMainCharacter::MoveForward);
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AMainCharacter::MoveRight);
 	PlayerInputComponent->BindAxis(TEXT("TurnRate"), this, &AMainCharacter::TurnAtRate);
@@ -343,7 +350,7 @@ void AMainCharacter::MoveForward(float Value)
 	bMovingForward = false;
 	if (CanMove(Value))
 	{
-		// forward ¹æÇâÀÌ ¾î´À¹æÇâÀ¸·Î µÇ¾îÀÖ´ÂÁö È®ÀÎ
+		// forward ë°©í–¥ì´ ì–´ëŠë°©í–¥ìœ¼ë¡œ ë˜ì–´ìˆëŠ”ì§€ í™•ì¸
 	    const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
 
@@ -359,7 +366,7 @@ void AMainCharacter::MoveRight(float Value)
 	bMovingRight = false;
 	if (CanMove(Value))
 	{
-		// forward ¹æÇâÀÌ ¾î´À¹æÇâÀ¸·Î µÇ¾îÀÖ´ÂÁö È®ÀÎ
+		// forward ë°©í–¥ì´ ì–´ëŠë°©í–¥ìœ¼ë¡œ ë˜ì–´ìˆëŠ”ì§€ í™•ì¸
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
 
@@ -429,7 +436,7 @@ void AMainCharacter::ResetDash()
     bCanDash = true;
 }
 
-// ÆøÅº ´êÀ¸¸é health °ª ÁÙ¾îµé°Ô ÇÏ±â
+// í­íƒ„ ë‹¿ìœ¼ë©´ health ê°’ ì¤„ì–´ë“¤ê²Œ í•˜ê¸°
 void AMainCharacter::DecrementHealth(float Amount)
 {
 	if (Health - Amount <= 0.f)
@@ -466,7 +473,7 @@ float AMainCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 	return DamageAmount;
 }
 
-// coin ¸ÔÀ¸¸é ÄÚÀÎ °ª »ó½Â
+// coin ë¨¹ìœ¼ë©´ ì½”ì¸ ê°’ ìƒìŠ¹
 void AMainCharacter::IncrementCoins(int32 Amount)
 {
 	Coins += Amount;
@@ -507,10 +514,10 @@ void AMainCharacter::Die()
 
 void AMainCharacter::Jump()
 {
-	// pausemenue ½ÇÇàµÇ¾îÀÖÀ¸¸é ÀÛµ¿ ¾ÈµÇ°Ô ÇÏ±â
+	// pausemenue ì‹¤í–‰ë˜ì–´ìˆìœ¼ë©´ ì‘ë™ ì•ˆë˜ê²Œ í•˜ê¸°
 	if (MainPlayerController) if (MainPlayerController->bPauseMenuVisible) return;
 
-	// Á×¾úÀ»¶§´Â Á¡ÇÁ°¡ ºÒ°¡´ÉÇÏ°ÔÇÏ±âÀ§ÇØ ÀçÁ¤ÀÇ
+	// ì£½ì—ˆì„ë•ŒëŠ” ì í”„ê°€ ë¶ˆê°€ëŠ¥í•˜ê²Œí•˜ê¸°ìœ„í•´ ì¬ì •ì˜
 	if (MovementStatus != EMovementStatus::EMS_Dead)
 	{
 		Super::Jump();
@@ -521,12 +528,12 @@ void AMainCharacter::LMBDown()
 {
     bLMBDown = true;
 
-	// Á×À¸¸é ÀåºñÂø¿ë ºñÈ°¼ºÈ­ ÇÏ±â
+	// ì£½ìœ¼ë©´ ì¥ë¹„ì°©ìš© ë¹„í™œì„±í™” í•˜ê¸°
 	if (MovementStatus == EMovementStatus::EMS_Dead)
 	{
 		return;
 	}
-	// pausemenu ½ÇÇàµÇ°í ÀÖÀ¸¸é ÀÛµ¿ ¾ÈµÇ°Ô ÇÏ±â
+	// pausemenu ì‹¤í–‰ë˜ê³  ìˆìœ¼ë©´ ì‘ë™ ì•ˆë˜ê²Œ í•˜ê¸°
 	if (MainPlayerController) if (MainPlayerController->bPauseMenuVisible) return;
 
 	if (ActiveOverlappingItem)
@@ -536,7 +543,7 @@ void AMainCharacter::LMBDown()
 		if (Weapon)
 		{
 			Weapon->Equip(this);
-			// ¸¶¿ì½º ¿ŞÂÊ Å¬¸¯½Ã Âø¿ë°¡´É
+			// ë§ˆìš°ìŠ¤ ì™¼ìª½ í´ë¦­ì‹œ ì°©ìš©ê°€ëŠ¥
 			SetActiveOverlappingItem(nullptr);
 		}
 	}
@@ -568,9 +575,28 @@ void AMainCharacter::ESCUp()
 	bESCDown = false;
 }
 
+
+// ì¸ë²¤í† ë¦¬ì°½ ê»ë‹¤ ì¼°ë‹¤ í•˜ê¸°.
+void AMainCharacter::InventoryDown()
+{
+	bInventoryDown = true;
+	if (MainPlayerController)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Inventory Down"));
+		MainPlayerController->ToggleInventoryMenu();
+	}
+}
+
+
+void AMainCharacter::InventoryUp()
+{
+	bInventoryDown = false;
+	
+}
+
 void AMainCharacter::SetEquipWeapon(AWeapon* WeaponToSet)
 {
-	// ±âÁ¸ÀÇ weapon À» °¡Áö°í ÀÖ´Ù°¡ ´Ù¸¥ weapon Âø¿ë½Ã BP ¿¡¼­ ±âÁ¸ÀÇ Weapon »ç¶óÁü
+	// ê¸°ì¡´ì˜ weapon ì„ ê°€ì§€ê³  ìˆë‹¤ê°€ ë‹¤ë¥¸ weapon ì°©ìš©ì‹œ BP ì—ì„œ ê¸°ì¡´ì˜ Weapon ì‚¬ë¼ì§
 	if (EquipWeapon)
 	{
 		EquipWeapon->Destroy();
@@ -578,7 +604,7 @@ void AMainCharacter::SetEquipWeapon(AWeapon* WeaponToSet)
     EquipWeapon = WeaponToSet; 
 }
 
-// montage ¸¸µé¾ú´ø°Í »ç¿ë½Ã
+// montage ë§Œë“¤ì—ˆë˜ê²ƒ ì‚¬ìš©ì‹œ
 void AMainCharacter::Attack()
 {
 	if (!bAttacking && MovementStatus != EMovementStatus::EMS_Dead)
@@ -589,7 +615,7 @@ void AMainCharacter::Attack()
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 		if (AnimInstance && CombatMontage)
 		{
-			// ±âº»°ø°İ 2°¡Áö À¯Çü ·£´ıÀ¸·Î ¹ø°¥¾Æ°¡¸é¼­ ³ª¿À°Ô ÇÏ±â
+			// ê¸°ë³¸ê³µê²© 2ê°€ì§€ ìœ í˜• ëœë¤ìœ¼ë¡œ ë²ˆê°ˆì•„ê°€ë©´ì„œ ë‚˜ì˜¤ê²Œ í•˜ê¸°
 			 int32 Section = FMath::RandRange(0, 1);
 			 switch (Section)
 			 {
@@ -649,7 +675,7 @@ void AMainCharacter::UpdateCombatTarget()
 	TArray<AActor*> OverlappingActors;
 	GetOverlappingActors(OverlappingActors, EnemyFilter);
 
-	// ¿ø¸® : ¸ó½ºÅÍ¾×ÅÍµéÀ» Tarray ¿¡ ´ãÀºÈÄ for ¹®À» µ¹¸é¼­ ¸ŞÀÎ¾×ÅÍ¿Í ¸ó½ºÅÍ¾×ÅÍÀÇ À§Ä¡º°·Î °¡±î¿î À§Ä¡¿¡ ÀÖ´Â°É 0¹øÀÇ array ·Îº¯°æÇÏ¿© Å¸°ÙÀ¸·Î ¼³Á¤ÇÑ´Ù.
+	// ì›ë¦¬ : ëª¬ìŠ¤í„°ì•¡í„°ë“¤ì„ Tarray ì— ë‹´ì€í›„ for ë¬¸ì„ ëŒë©´ì„œ ë©”ì¸ì•¡í„°ì™€ ëª¬ìŠ¤í„°ì•¡í„°ì˜ ìœ„ì¹˜ë³„ë¡œ ê°€ê¹Œìš´ ìœ„ì¹˜ì— ìˆëŠ”ê±¸ 0ë²ˆì˜ array ë¡œë³€ê²½í•˜ì—¬ íƒ€ê²Ÿìœ¼ë¡œ ì„¤ì •í•œë‹¤.
 	if (OverlappingActors.Num() == 0) return;
 	AEnemy* CloasetEnemy = Cast<AEnemy>(OverlappingActors[0]);
 
@@ -700,7 +726,7 @@ FRotator AMainCharacter::GetLookAtRotaionYaw(FVector Target)
 	return LookAtRotationYaw;
 }
 
-// level º¯È¯½Ã¿¡ ÇÊ¿ä
+// level ë³€í™˜ì‹œì— í•„ìš”
 void AMainCharacter::Switchlevel(FName LevelName)
 {
 	UWorld* World = GetWorld();
@@ -721,16 +747,16 @@ void AMainCharacter::SaveGame()
 {
 	URPGSaveGame* SaveGameInstance = Cast<URPGSaveGame>(UGameplayStatics::CreateSaveGameObject(URPGSaveGame::StaticClass()));
 
-	// ÀúÀåÇÒ °ÔÀÓ ¼Ó¼ºµé °ª ³Ö¾îÁÖ±â
+	// ì €ì¥í•  ê²Œì„ ì†ì„±ë“¤ ê°’ ë„£ì–´ì£¼ê¸°
 	SaveGameInstance->CharacterStats.Health = Health;
 	SaveGameInstance->CharacterStats.MaxHealth = MaxHealth;
 	SaveGameInstance->CharacterStats.Stamina = Stamina;
 	SaveGameInstance->CharacterStats.MaxStamina = MaxStamina;
 	SaveGameInstance->CharacterStats.Coins = Coins;
 
-	// MapName À» °¡Á®¿À±ä ÇÏ³ª ¾Õ¿¡ ºÎ°¡ÀûÀÎ ´Ü¾îµéÀÌ ÀÖÀ½
+	// MapName ì„ ê°€ì ¸ì˜¤ê¸´ í•˜ë‚˜ ì•ì— ë¶€ê°€ì ì¸ ë‹¨ì–´ë“¤ì´ ìˆìŒ
 	FString MapName = GetWorld()->GetMapName();
-	// ¾Æ·¡ Ã³¸®¸¦ ÇØÁà¾ßÁö ¼ø¼öÇÏ°Ô MapName (LevleName) À¸·Î ³ª¿È
+	// ì•„ë˜ ì²˜ë¦¬ë¥¼ í•´ì¤˜ì•¼ì§€ ìˆœìˆ˜í•˜ê²Œ MapName (LevleName) ìœ¼ë¡œ ë‚˜ì˜´
 	MapName.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);
 
 	SaveGameInstance->CharacterStats.LevelName = MapName;
@@ -753,7 +779,7 @@ void AMainCharacter::LoadGame(bool SetPosition)
 
 	LoadGameInstance = Cast<URPGSaveGame>(UGameplayStatics::LoadGameFromSlot(LoadGameInstance->PlayerName, LoadGameInstance->UserIndex));
 
-	// save ¿Í ¹İ´ë·Î µ¥ÀÌÅÍµéÀ» ºÒ·¯¿À±â
+	// save ì™€ ë°˜ëŒ€ë¡œ ë°ì´í„°ë“¤ì„ ë¶ˆëŸ¬ì˜¤ê¸°
 	Health = LoadGameInstance->CharacterStats.Health;
 	MaxHealth = LoadGameInstance->CharacterStats.MaxHealth;
 	Stamina = LoadGameInstance->CharacterStats.Stamina;
@@ -767,8 +793,7 @@ void AMainCharacter::LoadGame(bool SetPosition)
 		{
 			FString WeaponName = LoadGameInstance->CharacterStats.WeaponName;
 
-			// ºÒ·¯¿Â weaponName ÀÌ map ¿¡ÀÖ´Â°ÍÀÎÁö È®ÀÎÈÄ¿¡ Âø¿ë½ÃÅ°±â
-
+			// ë¶ˆëŸ¬ì˜¨ weaponName ì´ map ì—ìˆëŠ”ê²ƒì¸ì§€ í™•ì¸í›„ì— ì°©ìš©ì‹œí‚¤ê¸°
 			if (Weapons->WeaponMap.Contains(WeaponName))
 			{
 				AWeapon* WeaponToEquip = GetWorld()->SpawnActor<AWeapon>(Weapons->WeaponMap[WeaponName]);
@@ -783,12 +808,12 @@ void AMainCharacter::LoadGame(bool SetPosition)
 		SetActorRotation(LoadGameInstance->CharacterStats.Rotation);
 	}
 
-	// Á×¾î¼­ ÀúÀåÇÑ°Í ·Îµå½Ã »ì¾ÆÀÖ´Â »óÅÂ·Î ·ÎµåÇÏ±â
+	// ì£½ì–´ì„œ ì €ì¥í•œê²ƒ ë¡œë“œì‹œ ì‚´ì•„ìˆëŠ” ìƒíƒœë¡œ ë¡œë“œí•˜ê¸°
 	SetMovementStatus(EMovementStatus::EMS_Normal);
 	GetMesh()->bPauseAnims = false;
 	GetMesh()->bNoSkeletonUpdate = false;
 
-	// ÀúÀåµÈ ·¹º§ÀÌ °ø¹éÀÌ ¾Æ´Ï¶ó¸é ÇØ´ç ·¹º§¿¡¼­ ·ÎµåÇÏ±â -> °ø¹éÀÌ¸é ±âº» ¸Ê¿¡¼­ ·Îµå
+	// ì €ì¥ëœ ë ˆë²¨ì´ ê³µë°±ì´ ì•„ë‹ˆë¼ë©´ í•´ë‹¹ ë ˆë²¨ì—ì„œ ë¡œë“œí•˜ê¸° -> ê³µë°±ì´ë©´ ê¸°ë³¸ ë§µì—ì„œ ë¡œë“œ
 	if (LoadGameInstance->CharacterStats.LevelName != TEXT(""))
 	{
 		FName LevelName(*LoadGameInstance->CharacterStats.LevelName);
@@ -797,14 +822,14 @@ void AMainCharacter::LoadGame(bool SetPosition)
 	}
 }
 
-// ·¹º§ º¯°æÈÄ¿¡µµ ÀÌÀü °¡Áö°í ÀÖ´Â°Íµé º¯°æ µÇÁö ¾Ê°Ô ÇÏ±â
+// ë ˆë²¨ ë³€ê²½í›„ì—ë„ ì´ì „ ê°€ì§€ê³  ìˆëŠ”ê²ƒë“¤ ë³€ê²½ ë˜ì§€ ì•Šê²Œ í•˜ê¸°
 void AMainCharacter::LoadGameNoSwitch()
 {
 	URPGSaveGame* LoadGameInstance = Cast<URPGSaveGame>(UGameplayStatics::CreateSaveGameObject(URPGSaveGame::StaticClass()));
 
 	LoadGameInstance = Cast<URPGSaveGame>(UGameplayStatics::LoadGameFromSlot(LoadGameInstance->PlayerName, LoadGameInstance->UserIndex));
 
-	// save ¿Í ¹İ´ë·Î µ¥ÀÌÅÍµéÀ» ºÒ·¯¿À±â
+	// save ì™€ ë°˜ëŒ€ë¡œ ë°ì´í„°ë“¤ì„ ë¶ˆëŸ¬ì˜¤ê¸°
 	Health = LoadGameInstance->CharacterStats.Health;
 	MaxHealth = LoadGameInstance->CharacterStats.MaxHealth;
 	Stamina = LoadGameInstance->CharacterStats.Stamina;
@@ -818,7 +843,7 @@ void AMainCharacter::LoadGameNoSwitch()
 		{
 			FString WeaponName = LoadGameInstance->CharacterStats.WeaponName;
 
-			// ºÒ·¯¿Â weaponName ÀÌ map ¿¡ÀÖ´Â°ÍÀÎÁö È®ÀÎÈÄ¿¡ Âø¿ë½ÃÅ°±â
+			// ë¶ˆëŸ¬ì˜¨ weaponName ì´ map ì—ìˆëŠ”ê²ƒì¸ì§€ í™•ì¸í›„ì— ì°©ìš©ì‹œí‚¤ê¸°
 			if (Weapons->WeaponMap.Contains(WeaponName))
 			{
 				AWeapon* WeaponToEquip = GetWorld()->SpawnActor<AWeapon>(Weapons->WeaponMap[WeaponName]);
@@ -828,12 +853,10 @@ void AMainCharacter::LoadGameNoSwitch()
 		}
 	}
 
-	// Á×¾î¼­ ÀúÀåÇÑ°Í ·Îµå½Ã »ì¾ÆÀÖ´Â »óÅÂ·Î ·ÎµåÇÏ±â
+	// ì£½ì–´ì„œ ì €ì¥í•œê²ƒ ë¡œë“œì‹œ ì‚´ì•„ìˆëŠ” ìƒíƒœë¡œ ë¡œë“œí•˜ê¸°
 	SetMovementStatus(EMovementStatus::EMS_Normal);
 	GetMesh()->bPauseAnims = false;
 	GetMesh()->bNoSkeletonUpdate = false;
-
-
 }
 
 

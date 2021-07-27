@@ -224,6 +224,11 @@ public:
 	void ESCUp();
 	bool bESCDown;
 
+	//inventory
+	void InventoryDown();
+	void InventoryUp();
+	bool bInventoryDown;
+
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
