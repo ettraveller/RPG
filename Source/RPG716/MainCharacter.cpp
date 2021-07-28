@@ -29,7 +29,7 @@ AMainCharacter::AMainCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	// CameraBoom = 충돌이 있는경우 플레이어를 향해 당김
+	// CameraBoom = 충돌???�는경우 ?�레?�어�??�해 ?��?
 	// Create CameraBoom( pull toward thee player if there's a collison)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(GetRootComponent());
@@ -39,7 +39,7 @@ AMainCharacter::AMainCharacter()
 	GetCapsuleComponent()->SetCapsuleSize(48.f, 88.f);
 		
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);//socket = 에셋을 넣을수있는 장소
+	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);//socket = ?�셋???�을?�있???�소
 	FollowCamera->bUsePawnControlRotation = false;
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
@@ -47,12 +47,12 @@ AMainCharacter::AMainCharacter()
 	BaseTurnRate = 65.f;
 	BaseLookUpRate = 65.f;
 
-	//카메라와 캐릭터 로테이션 분리
+	//카메?��? 캐릭??로테?�션 분리
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationPitch = false;
 
-	//캐릭터가 자동으로 이동방향에 따라 방향설정
+	//캐릭?��? ?�동?�로 ?�동방향???�라 방향?�정
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 840.f, 0.f);
 	GetCharacterMovement()->JumpZVelocity = 650.f;
@@ -72,7 +72,7 @@ AMainCharacter::AMainCharacter()
 	bESCDown = false;
 	bInventoryDown = false;
 
-	// ENUMS 들 initialize 하는것
+	// ENUMS ??initialize ?�는�?
 	// Initialize Enums
 	MovementStatus = EMovementStatus::EMS_Normal;
 	StaminaStatus = EStaminaStatus::ESS_Normal;
@@ -83,7 +83,7 @@ AMainCharacter::AMainCharacter()
 	InterSpeed = 15.f;
 	bInterToEnemy = false;
 
-	// Enemy healthbar HUD 시 필요
+	// Enemy healthbar HUD ???�요
 	bHasCombatTarget = false;
 
 	bMovingForward = false;
@@ -96,23 +96,23 @@ AMainCharacter::AMainCharacter()
 
 }
 
-// PickupLocation 들의 위치에 디버그 그림 넣어주기
+// PickupLocation ?�의 ?�치???�버�?그림 ?�어주기
 void AMainCharacter::ShowPickUpLocation()
 {
-// tarray for문 돌리는거임
+// tarray for�??�리?�거??
 	/*for (int32 i = 0; i < PickUpLocations.Num(); i++)
 	{
 		UKismetSystemLibrary::DrawDebugSphere(this, PickUpLocations[i], 35.f, 12, FLinearColor::Blue, 5.f, 2.f);
 	}*/
 
-	//for문 조건연산방법 (auto 까지 사용)
+	//for�?조건?�산방법 (auto 까�? ?�용)
 	for (FVector Location : PickUpLocations)
 	{
 		UKismetSystemLibrary::DrawDebugSphere(this, Location, 35.f, 12, FLinearColor::Blue, 5.f, 2.f);
 	}
 }
 
-// 키 눌리는것에 따라 sprinting 스피드로 했다가 일반 달리기 스피드로 했다가
+// ???�리?�것???�라 sprinting ?�피?�로 ?�다가 ?�반 ?�리�??�피?�로 ?�다가
 void AMainCharacter::SetMovementStatus(EMovementStatus Status)
 {
     MovementStatus = Status;
@@ -147,7 +147,7 @@ void AMainCharacter::BeginPlay()
 
 	LoadGameNoSwitch();
 
-	// 다른맵으로 로드시 바로 게임모드로 전환될수 있게 하기
+	// ?�른맵으�?로드??바로 게임모드�??�환?�수 ?�게 ?�기
 	if (MainPlayerController)
 	{
 		MainPlayerController->GameModeOnly();
@@ -170,7 +170,7 @@ void AMainCharacter::Tick(float DeltaTime)
 	switch (StaminaStatus)
 	{
 	
-		// stamina 상태에 따라 상태 바다르게 할때
+		// stamina ?�태???�라 ?�태 바다르게 ?�때
 	case EStaminaStatus::ESS_Normal:
 		//shiftKey Down
 		if (bShiftKeyDown)
@@ -184,7 +184,7 @@ void AMainCharacter::Tick(float DeltaTime)
 			{
 			    Stamina -= DeltaStamina;
 			}
-			// WASD 움직임이 있어야지 Sprinting 가능하게
+			// WASD ?�직임???�어?��? Sprinting 가?�하�?
 			if (bMovingForward || bMovingRight)
 			{
 				SetMovementStatus(EMovementStatus::EMS_Sprinting);
@@ -220,7 +220,7 @@ void AMainCharacter::Tick(float DeltaTime)
 			else
 			{
 				Stamina -= DeltaStamina;
-				// WASD 움직임이 있어야지 Sprinting 가능하게
+				// WASD ?�직임???�어?��? Sprinting 가?�하�?
 				if (bMovingForward || bMovingRight)
 				{
 					SetMovementStatus(EMovementStatus::EMS_Sprinting);
@@ -350,7 +350,7 @@ void AMainCharacter::MoveForward(float Value)
 	bMovingForward = false;
 	if (CanMove(Value))
 	{
-		// forward 방향이 어느방향으로 되어있는지 확인
+		// forward 방향???�느방향?�로 ?�어?�는지 ?�인
 	    const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
 
@@ -366,7 +366,7 @@ void AMainCharacter::MoveRight(float Value)
 	bMovingRight = false;
 	if (CanMove(Value))
 	{
-		// forward 방향이 어느방향으로 되어있는지 확인
+		// forward 방향???�느방향?�로 ?�어?�는지 ?�인
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
 
@@ -436,7 +436,7 @@ void AMainCharacter::ResetDash()
     bCanDash = true;
 }
 
-// 폭탄 닿으면 health 값 줄어들게 하기
+// ??�� ?�으�?health �?줄어?�게 ?�기
 void AMainCharacter::DecrementHealth(float Amount)
 {
 	if (Health - Amount <= 0.f)
@@ -473,7 +473,7 @@ float AMainCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 	return DamageAmount;
 }
 
-// coin 먹으면 코인 값 상승
+// coin 먹으�?코인 �??�승
 void AMainCharacter::IncrementCoins(int32 Amount)
 {
 	Coins += Amount;
@@ -514,10 +514,10 @@ void AMainCharacter::Die()
 
 void AMainCharacter::Jump()
 {
-	// pausemenue 실행되어있으면 작동 안되게 하기
+	// pausemenue ?�행?�어?�으�??�동 ?�되�??�기
 	if (MainPlayerController) if (MainPlayerController->bPauseMenuVisible) return;
 
-	// 죽었을때는 점프가 불가능하게하기위해 재정의
+	// 죽었?�때???�프가 불�??�하게하기위???�정??
 	if (MovementStatus != EMovementStatus::EMS_Dead)
 	{
 		Super::Jump();
@@ -528,12 +528,12 @@ void AMainCharacter::LMBDown()
 {
     bLMBDown = true;
 
-	// 죽으면 장비착용 비활성화 하기
+	// 죽으�??�비착용 비활?�화 ?�기
 	if (MovementStatus == EMovementStatus::EMS_Dead)
 	{
 		return;
 	}
-	// pausemenu 실행되고 있으면 작동 안되게 하기
+	// pausemenu ?�행?�고 ?�으�??�동 ?�되�??�기
 	if (MainPlayerController) if (MainPlayerController->bPauseMenuVisible) return;
 
 	if (ActiveOverlappingItem)
@@ -543,7 +543,7 @@ void AMainCharacter::LMBDown()
 		if (Weapon)
 		{
 			Weapon->Equip(this);
-			// 마우스 왼쪽 클릭시 착용가능
+			// 마우???�쪽 ?�릭??착용가??
 			SetActiveOverlappingItem(nullptr);
 		}
 	}
@@ -576,7 +576,11 @@ void AMainCharacter::ESCUp()
 }
 
 
-// 인벤토리창 껐다 켰다 하기.
+<<<<<<< Updated upstream
+// ?�벤?�리�?껐다 켰다 ?�기.
+=======
+// �κ��丮â ���� �״� �ϱ�.
+>>>>>>> Stashed changes
 void AMainCharacter::InventoryDown()
 {
 	bInventoryDown = true;
@@ -596,7 +600,7 @@ void AMainCharacter::InventoryUp()
 
 void AMainCharacter::SetEquipWeapon(AWeapon* WeaponToSet)
 {
-	// 기존의 weapon 을 가지고 있다가 다른 weapon 착용시 BP 에서 기존의 Weapon 사라짐
+	// 기존??weapon ??가지�??�다가 ?�른 weapon 착용??BP ?�서 기존??Weapon ?�라�?
 	if (EquipWeapon)
 	{
 		EquipWeapon->Destroy();
@@ -604,7 +608,7 @@ void AMainCharacter::SetEquipWeapon(AWeapon* WeaponToSet)
     EquipWeapon = WeaponToSet; 
 }
 
-// montage 만들었던것 사용시
+// montage 만들?�던�??�용??
 void AMainCharacter::Attack()
 {
 	if (!bAttacking && MovementStatus != EMovementStatus::EMS_Dead)
@@ -615,7 +619,7 @@ void AMainCharacter::Attack()
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 		if (AnimInstance && CombatMontage)
 		{
-			// 기본공격 2가지 유형 랜덤으로 번갈아가면서 나오게 하기
+			// 기본공격 2가지 ?�형 ?�덤?�로 번갈?��?면서 ?�오�??�기
 			 int32 Section = FMath::RandRange(0, 1);
 			 switch (Section)
 			 {
@@ -675,7 +679,7 @@ void AMainCharacter::UpdateCombatTarget()
 	TArray<AActor*> OverlappingActors;
 	GetOverlappingActors(OverlappingActors, EnemyFilter);
 
-	// 원리 : 몬스터액터들을 Tarray 에 담은후 for 문을 돌면서 메인액터와 몬스터액터의 위치별로 가까운 위치에 있는걸 0번의 array 로변경하여 타겟으로 설정한다.
+	// ?�리 : 몬스?�액?�들??Tarray ???��???for 문을 ?�면??메인?�터?� 몬스?�액?�의 ?�치별로 가까운 ?�치???�는�?0번의 array 로�?경하???�겟으�??�정?�다.
 	if (OverlappingActors.Num() == 0) return;
 	AEnemy* CloasetEnemy = Cast<AEnemy>(OverlappingActors[0]);
 
@@ -726,7 +730,7 @@ FRotator AMainCharacter::GetLookAtRotaionYaw(FVector Target)
 	return LookAtRotationYaw;
 }
 
-// level 변환시에 필요
+// level 변?�시???�요
 void AMainCharacter::Switchlevel(FName LevelName)
 {
 	UWorld* World = GetWorld();
@@ -747,16 +751,16 @@ void AMainCharacter::SaveGame()
 {
 	URPGSaveGame* SaveGameInstance = Cast<URPGSaveGame>(UGameplayStatics::CreateSaveGameObject(URPGSaveGame::StaticClass()));
 
-	// 저장할 게임 속성들 값 넣어주기
+	// ?�?�할 게임 ?�성??�??�어주기
 	SaveGameInstance->CharacterStats.Health = Health;
 	SaveGameInstance->CharacterStats.MaxHealth = MaxHealth;
 	SaveGameInstance->CharacterStats.Stamina = Stamina;
 	SaveGameInstance->CharacterStats.MaxStamina = MaxStamina;
 	SaveGameInstance->CharacterStats.Coins = Coins;
 
-	// MapName 을 가져오긴 하나 앞에 부가적인 단어들이 있음
+	// MapName ??가?�오�??�나 ?�에 부가?�인 ?�어?�이 ?�음
 	FString MapName = GetWorld()->GetMapName();
-	// 아래 처리를 해줘야지 순수하게 MapName (LevleName) 으로 나옴
+	// ?�래 처리�??�줘?��? ?�수?�게 MapName (LevleName) ?�로 ?�옴
 	MapName.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);
 
 	SaveGameInstance->CharacterStats.LevelName = MapName;
@@ -779,7 +783,7 @@ void AMainCharacter::LoadGame(bool SetPosition)
 
 	LoadGameInstance = Cast<URPGSaveGame>(UGameplayStatics::LoadGameFromSlot(LoadGameInstance->PlayerName, LoadGameInstance->UserIndex));
 
-	// save 와 반대로 데이터들을 불러오기
+	// save ?� 반�?�??�이?�들??불러?�기
 	Health = LoadGameInstance->CharacterStats.Health;
 	MaxHealth = LoadGameInstance->CharacterStats.MaxHealth;
 	Stamina = LoadGameInstance->CharacterStats.Stamina;
@@ -793,7 +797,11 @@ void AMainCharacter::LoadGame(bool SetPosition)
 		{
 			FString WeaponName = LoadGameInstance->CharacterStats.WeaponName;
 
-			// 불러온 weaponName 이 map 에있는것인지 확인후에 착용시키기
+<<<<<<< Updated upstream
+			// 불러??weaponName ??map ?�있?�것?��? ?�인?�에 착용?�키�?
+=======
+			// �ҷ��� weaponName �� map ���ִ°����� Ȯ���Ŀ� �����Ű��
+>>>>>>> Stashed changes
 			if (Weapons->WeaponMap.Contains(WeaponName))
 			{
 				AWeapon* WeaponToEquip = GetWorld()->SpawnActor<AWeapon>(Weapons->WeaponMap[WeaponName]);
@@ -808,12 +816,12 @@ void AMainCharacter::LoadGame(bool SetPosition)
 		SetActorRotation(LoadGameInstance->CharacterStats.Rotation);
 	}
 
-	// 죽어서 저장한것 로드시 살아있는 상태로 로드하기
+	// 죽어???�?�한�?로드???�아?�는 ?�태�?로드?�기
 	SetMovementStatus(EMovementStatus::EMS_Normal);
 	GetMesh()->bPauseAnims = false;
 	GetMesh()->bNoSkeletonUpdate = false;
 
-	// 저장된 레벨이 공백이 아니라면 해당 레벨에서 로드하기 -> 공백이면 기본 맵에서 로드
+	// ?�?�된 ?�벨??공백???�니?�면 ?�당 ?�벨?�서 로드?�기 -> 공백?�면 기본 맵에??로드
 	if (LoadGameInstance->CharacterStats.LevelName != TEXT(""))
 	{
 		FName LevelName(*LoadGameInstance->CharacterStats.LevelName);
@@ -822,14 +830,14 @@ void AMainCharacter::LoadGame(bool SetPosition)
 	}
 }
 
-// 레벨 변경후에도 이전 가지고 있는것들 변경 되지 않게 하기
+// ?�벨 변경후?�도 ?�전 가지�??�는것들 변�??��? ?�게 ?�기
 void AMainCharacter::LoadGameNoSwitch()
 {
 	URPGSaveGame* LoadGameInstance = Cast<URPGSaveGame>(UGameplayStatics::CreateSaveGameObject(URPGSaveGame::StaticClass()));
 
 	LoadGameInstance = Cast<URPGSaveGame>(UGameplayStatics::LoadGameFromSlot(LoadGameInstance->PlayerName, LoadGameInstance->UserIndex));
 
-	// save 와 반대로 데이터들을 불러오기
+	// save ?� 반�?�??�이?�들??불러?�기
 	Health = LoadGameInstance->CharacterStats.Health;
 	MaxHealth = LoadGameInstance->CharacterStats.MaxHealth;
 	Stamina = LoadGameInstance->CharacterStats.Stamina;
@@ -843,7 +851,7 @@ void AMainCharacter::LoadGameNoSwitch()
 		{
 			FString WeaponName = LoadGameInstance->CharacterStats.WeaponName;
 
-			// 불러온 weaponName 이 map 에있는것인지 확인후에 착용시키기
+			// 불러??weaponName ??map ?�있?�것?��? ?�인?�에 착용?�키�?
 			if (Weapons->WeaponMap.Contains(WeaponName))
 			{
 				AWeapon* WeaponToEquip = GetWorld()->SpawnActor<AWeapon>(Weapons->WeaponMap[WeaponName]);
@@ -853,7 +861,7 @@ void AMainCharacter::LoadGameNoSwitch()
 		}
 	}
 
-	// 죽어서 저장한것 로드시 살아있는 상태로 로드하기
+	// 죽어???�?�한�?로드???�아?�는 ?�태�?로드?�기
 	SetMovementStatus(EMovementStatus::EMS_Normal);
 	GetMesh()->bPauseAnims = false;
 	GetMesh()->bNoSkeletonUpdate = false;
