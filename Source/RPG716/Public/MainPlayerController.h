@@ -47,6 +47,20 @@ public:
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Widgets")
 	UUserWidget* Inventory;
 
+	// 장비 픽업시 착용할지 인벤토리 담을지 선택하는 HUD
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<UUserWidget> WItemEquip;
+
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Widgets")
+	UUserWidget* ItemEquip;
+
+	// 포션 픽업시 사용할지 인벤토리 담을지 선택하는 HUD
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<UUserWidget> WItemPotion;
+
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Widgets")
+	UUserWidget* ItemPotion;
+
 	bool bEnemyHealthBarVisible;
 
 	void DisplayEnemyHealthBar();
@@ -77,6 +91,37 @@ public:
 	void ToggleInventoryMenu();
 
 	bool bInventoryMenu;
+
+	// 장비 득템시 착용 여부 HUD
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "HUD")
+	void DisplayItemEquipMenu();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "HUD")
+	void RemoveItemEquipMenu();
+
+	//void ToggleItemEquipMenu();
+
+	void ViewItemEquipMenu();
+
+	void UnableItemEquipMenu();
+
+	bool bItemEquipMenu;
+
+
+	// 포션 득템시 사용 여부 HUD
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "HUD")
+	void DisplayItemPotionMenu();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "HUD")
+	void RemoveIItemPotionMenu();
+
+	//void ToggleItemPotionMenu();
+
+	void ViewItemPotionMenu();
+
+	void UnableItemPotionMenu();
+
+	bool bItemPotionMenu;
 
 protected:
 

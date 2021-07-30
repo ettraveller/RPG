@@ -10,6 +10,7 @@
 #include "Particles/ParticleSystemComponent.h"
 #include <Components/BoxComponent.h>
 #include "Enemy.h"
+#include "MainPlayerController.h"
 
 
 AWeapon::AWeapon()
@@ -32,6 +33,8 @@ AWeapon::AWeapon()
     WeaponState = EWeaponState::EWS_Pickup;
 
     Damage = 25.f;
+
+    bItemEquipDown = false;
 }
 
 void AWeapon::BeginPlay()
@@ -53,8 +56,12 @@ void AWeapon::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* O
         AMainCharacter* Main = Cast<AMainCharacter>(OtherActor);
         if (Main)
         {
+            UE_LOG(LogTemp, Warning, TEXT("OnOverlapBegin Euqip!!"));
+            bItemEquipDown = true;
+            Main->CallItemEquip();
+            
             //Equip(Main);
-            Main->SetActiveOverlappingItem(this);
+            //Main->SetActiveOverlappingItem(this);
         }
     }
 }
@@ -71,7 +78,8 @@ void AWeapon::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		if (Main)
 		{
 			//Equip(Main);
-			Main->SetActiveOverlappingItem(nullptr);
+			//Main->SetActiveOverlappingItem(nullptr);
+            Main->UnCallItemEquip();
 		}
 	}
 }

@@ -544,6 +544,8 @@ void AMainCharacter::LMBDown()
 {
     bLMBDown = true;
 
+	//
+
 	// 죽으면 장비착용 비활성화 하기
 	if (MovementStatus == EMovementStatus::EMS_Dead)
 	{
@@ -554,7 +556,7 @@ void AMainCharacter::LMBDown()
 
 	if (ActiveOverlappingItem)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("11111111"));
+		//UE_LOG(LogTemp, Warning, TEXT("11111111"));
 		AWeapon* Weapon = Cast<AWeapon>(ActiveOverlappingItem);
 		if (Weapon)
 		{
@@ -565,7 +567,7 @@ void AMainCharacter::LMBDown()
 	}
 	else if(EquipWeapon)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("22222222"));
+		//UE_LOG(LogTemp, Warning, TEXT("22222222"));
 	    Attack();
 	}
 }
@@ -619,6 +621,67 @@ void AMainCharacter::SetEquipWeapon(AWeapon* WeaponToSet)
 		EquipWeapon->Destroy();
 	}
     EquipWeapon = WeaponToSet; 
+}
+
+void AMainCharacter::SetActiveOverlappingItem(AItem* Item)
+{
+	UE_LOG(LogTemp, Warning, TEXT("?????"));
+	if (Item) {
+		UE_LOG(LogTemp, Warning, TEXT("Yes"));
+		ActiveOverlappingItem = Item;
+		LMBDown();
+	}
+	else{
+		UE_LOG(LogTemp, Warning, TEXT("NOOOO"));
+	}
+
+	
+
+}
+
+void AMainCharacter::CallItemEquip()
+{
+	if (MainPlayerController) {
+		MainPlayerController->ViewItemEquipMenu();
+	}
+}
+
+void AMainCharacter::UnCallItemEquip()
+{
+	if (MainPlayerController) {
+		MainPlayerController->UnableItemEquipMenu();
+	}
+}
+
+void AMainCharacter::EquipOn(AWeapon* weapon)
+{
+	SetActiveOverlappingItem(weapon);
+}
+
+void AMainCharacter::EquipSave()
+{
+}
+
+void AMainCharacter::CallItemPotion()
+{
+	if (MainPlayerController) {
+		MainPlayerController->ViewItemPotionMenu();
+	}
+}
+
+void AMainCharacter::UnCallItemPotion()
+{
+	if (MainPlayerController) {
+		MainPlayerController->UnableItemPotionMenu();
+	}
+}
+
+void AMainCharacter::PotionUse(AItem* Item)
+{
+}
+
+void AMainCharacter::PotionSave()
+{
 }
 
 // montage 만들었던것 사용시

@@ -56,6 +56,30 @@ void AMainPlayerController::BeginPlay()
 		}
 
 	}
+
+	// ItemEquip viewport 에 보이게 하는것
+	if (WItemEquip)
+	{
+		ItemEquip = CreateWidget<UUserWidget>(this, WItemEquip);
+		if (ItemEquip)
+		{
+			ItemEquip->AddToViewport();
+			ItemEquip->SetVisibility(ESlateVisibility::Hidden);
+		}
+
+	}
+
+	// ItemPotion viewport 에 보이게 하는것
+	if (WItemPotion)
+	{
+		ItemPotion = CreateWidget<UUserWidget>(this, WItemPotion);
+		if (ItemPotion)
+		{
+			ItemPotion->AddToViewport();
+			ItemPotion->SetVisibility(ESlateVisibility::Hidden);
+		}
+
+	}
 }
 
 
@@ -181,3 +205,95 @@ void AMainPlayerController::ToggleInventoryMenu()
 		DisplayInventoryMenu_Implementation();
 	}
 }
+
+void AMainPlayerController::DisplayItemEquipMenu_Implementation()
+{
+	if (ItemEquip)
+	{
+		bItemEquipMenu = true;
+		ItemEquip->SetVisibility(ESlateVisibility::Visible);
+
+		// 게임 실행시 마우스크 커서가 보이진 않지만 커서가 있는것처럼 해서 pausemenu 버튼들누를수 있게 하는것
+		FInputModeGameAndUI InputModeGameAndUI;
+		SetInputMode(InputModeGameAndUI);
+		// 밑에를 해줘야지 마우스크 커서가 viewport 에서 보임
+		bShowMouseCursor = true;
+	}
+}
+
+void AMainPlayerController::RemoveItemEquipMenu_Implementation()
+{
+	if (ItemEquip)
+	{
+		GameModeOnly();
+		bShowMouseCursor = false;
+
+		bItemEquipMenu = false;
+		ItemEquip->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
+//void AMainPlayerController::ToggleItemEquipMenu()
+//{
+//	if (bItemEquipMenu)
+//	{
+//		UE_LOG(LogTemp, Warning, TEXT("Toggle!!!!!!!!"));
+//		RemoveItemEquipMenu_Implementation();
+//	}
+//	else {
+//		UE_LOG(LogTemp, Warning, TEXT("Toggle!!!!@@@@@@!!!!"));
+//		DisplayItemEquipMenu_Implementation();
+//	}
+//}
+
+void AMainPlayerController::ViewItemEquipMenu()
+{
+	DisplayItemEquipMenu_Implementation();
+}
+
+void AMainPlayerController::UnableItemEquipMenu()
+{
+	RemoveItemEquipMenu_Implementation();
+}
+
+void AMainPlayerController::DisplayItemPotionMenu_Implementation()
+{
+	if (ItemPotion)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("display!!!!!!!!"));
+		bItemPotionMenu = true;
+		ItemPotion->SetVisibility(ESlateVisibility::Visible);
+
+		// 게임 실행시 마우스크 커서가 보이진 않지만 커서가 있는것처럼 해서 pausemenu 버튼들누를수 있게 하는것
+		FInputModeGameAndUI InputModeGameAndUI;
+		SetInputMode(InputModeGameAndUI);
+		// 밑에를 해줘야지 마우스크 커서가 viewport 에서 보임
+		bShowMouseCursor = true;
+	}
+}
+
+void AMainPlayerController::RemoveIItemPotionMenu_Implementation()
+{
+	if (ItemPotion)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Remove!!!!!!!!"));
+		GameModeOnly();
+		bShowMouseCursor = false;
+
+		bItemPotionMenu = false;
+		ItemPotion->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
+void AMainPlayerController::ViewItemPotionMenu()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Toggle!!!!!!!!"));
+	DisplayItemPotionMenu_Implementation();
+}
+
+void AMainPlayerController::UnableItemPotionMenu()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Toggle!!!!####!!!!"));
+	RemoveIItemPotionMenu_Implementation();
+}
+
