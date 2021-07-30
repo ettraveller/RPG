@@ -496,6 +496,21 @@ void AMainCharacter::IncrementHealth(float Amount)
 
 }
 
+void AMainCharacter::IncrementStamina(float Amount)
+{
+
+	if (Stamina + Amount >= MaxStamina)
+	{
+		Stamina = MaxStamina;
+	}
+	else {
+
+		Stamina += Amount;
+
+	}
+
+}
+
 void AMainCharacter::Die()
 {
 	if (MovementStatus == EMovementStatus::EMS_Dead)

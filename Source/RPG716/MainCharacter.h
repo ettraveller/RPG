@@ -208,8 +208,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void IncrementCoins(int32 Amount);
 
+	// Potion 사용시 health 증가
 	UFUNCTION(BlueprintCallable)
 	void IncrementHealth(float Amount);
+
+	// Potion 사용시 stamina 증가
+	UFUNCTION(BlueprintCallable)
+	void IncrementStamina(float Amount);
 	void Die();
 
 	virtual void Jump() override;
