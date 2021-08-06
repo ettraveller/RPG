@@ -42,12 +42,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item | Sound")
 	USoundCue* SwingSound;
 
-	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item | Combat")
 	class UBoxComponent* CombatCollision;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item | Combat")
 	float Damage;
+
+	// 장비득템시 착용 여부 확인 HUD 시 필요
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Controller")
+	class AMainPlayerController* MainPlayerController;
+
+	bool bItemEquipDown;
 
 protected:
      

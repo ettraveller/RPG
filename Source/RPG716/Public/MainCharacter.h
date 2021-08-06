@@ -208,8 +208,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void IncrementCoins(int32 Amount);
 
+	// Potion 사용시 health 증가
 	UFUNCTION(BlueprintCallable)
 	void IncrementHealth(float Amount);
+
+	// Potion 사용시 stamina 증가
+	UFUNCTION(BlueprintCallable)
+	void IncrementStamina(float Amount);
 	void Die();
 
 	virtual void Jump() override;
@@ -242,7 +247,34 @@ public:
 
 	void SetEquipWeapon(AWeapon* WeaponToSet);
 	FORCEINLINE AWeapon* GetEquipWeapon() { return EquipWeapon; }
-	FORCEINLINE void SetActiveOverlappingItem(AItem* Item) { ActiveOverlappingItem = Item; }
+	UFUNCTION(BlueprintCallable)
+	void SetActiveOverlappingItem(AItem* Item);
+
+
+	// 장비 득템시 HUD
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equip")
+	void CallItemEquip();
+	
+	void UnCallItemEquip();
+
+	UFUNCTION(BlueprintCallable)
+	void EquipOn(AWeapon* weapon);
+
+	UFUNCTION(BlueprintCallable)
+	void EquipSave();
+
+	// 물약 득템시 HUD
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equip")
+	void CallItemPotion();
+
+	void UnCallItemPotion();
+
+	UFUNCTION(BlueprintCallable)
+	void PotionUse(AItem* Item);
+
+	UFUNCTION(BlueprintCallable)
+	void PotionSave();
+
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anims")
 	bool bAttacking;
@@ -281,4 +313,7 @@ public:
 	void LoadGame(bool SetPosition);
 
 	void LoadGameNoSwitch();
+
+	
+
 };

@@ -21,8 +21,9 @@ void APickUp::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* O
 		AMainCharacter* Main = Cast<AMainCharacter>(OtherActor);
 		if (Main)
 		{
-			OnPickupBP(Main);
-			Main->PickUpLocations.Add(GetActorLocation());
+			//OnPickupBP(Main);
+			Main->CallItemPotion();
+			//Main->PickUpLocations.Add(GetActorLocation());
 
 			if (OverlapParticles)
 			{
@@ -32,7 +33,7 @@ void APickUp::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* O
 			{
 				UGameplayStatics::PlaySound2D(this, OverlapSound);
 			}
-			Destroy();
+			//Destroy();
 		}
 	}
 
@@ -41,5 +42,14 @@ void APickUp::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* O
 void APickUp::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	Super::OnOverlapEnd(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex);
-	UE_LOG(LogTemp, Warning, TEXT("PickUp::Item Overlap End!"));
+
+	if (OtherActor)
+	{
+		AMainCharacter* Main = Cast<AMainCharacter>(OtherActor);
+		if (Main)
+		{
+			Main->UnCallItemPotion();
+		}
+	}
+
 }

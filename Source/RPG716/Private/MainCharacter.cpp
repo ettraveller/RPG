@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "MainCharacter.h"
@@ -59,7 +59,7 @@ AMainCharacter::AMainCharacter()
 	GetCharacterMovement()->AirControl = 0.3f;
 
 	MaxHealth = 100.f;
-	Health = 65.f;
+	Health = 70.f;
 	MaxStamina = 300.f;
 	Stamina = 120.f;
 	Coins = 0;
@@ -99,7 +99,7 @@ AMainCharacter::AMainCharacter()
 // PickupLocation 들의 위치에 디버그 그림 넣어주기
 void AMainCharacter::ShowPickUpLocation()
 {
-// tarray for문 돌리는거임
+	// tarray for문 돌리는거임
 	/*for (int32 i = 0; i < PickUpLocations.Num(); i++)
 	{
 		UKismetSystemLibrary::DrawDebugSphere(this, PickUpLocations[i], 35.f, 12, FLinearColor::Blue, 5.f, 2.f);
@@ -315,6 +315,7 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction(TEXT("ESC"), IE_Released, this, &AMainCharacter::ESCUp);
 
 
+
 	PlayerInputComponent->BindAction(TEXT("Inventory"), IE_Pressed, this, &AMainCharacter::InventoryDown);
 	PlayerInputComponent->BindAction(TEXT("Inventory"), IE_Released, this, &AMainCharacter::InventoryUp);
 
@@ -495,6 +496,21 @@ void AMainCharacter::IncrementHealth(float Amount)
 
 }
 
+void AMainCharacter::IncrementStamina(float Amount)
+{
+
+	if (Stamina + Amount >= MaxStamina)
+	{
+		Stamina = MaxStamina;
+	}
+	else {
+
+		Stamina += Amount;
+
+	}
+
+}
+
 void AMainCharacter::Die()
 {
 	if (MovementStatus == EMovementStatus::EMS_Dead)
@@ -528,6 +544,8 @@ void AMainCharacter::LMBDown()
 {
     bLMBDown = true;
 
+	//
+
 	// 죽으면 장비착용 비활성화 하기
 	if (MovementStatus == EMovementStatus::EMS_Dead)
 	{
@@ -538,7 +556,7 @@ void AMainCharacter::LMBDown()
 
 	if (ActiveOverlappingItem)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("11111111"));
+		//UE_LOG(LogTemp, Warning, TEXT("11111111"));
 		AWeapon* Weapon = Cast<AWeapon>(ActiveOverlappingItem);
 		if (Weapon)
 		{
@@ -549,7 +567,7 @@ void AMainCharacter::LMBDown()
 	}
 	else if(EquipWeapon)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("22222222"));
+		//UE_LOG(LogTemp, Warning, TEXT("22222222"));
 	    Attack();
 	}
 }
@@ -574,6 +592,7 @@ void AMainCharacter::ESCUp()
 {
 	bESCDown = false;
 }
+
 
 
 // 인벤토리창 껐다 켰다 하기.
@@ -602,6 +621,67 @@ void AMainCharacter::SetEquipWeapon(AWeapon* WeaponToSet)
 		EquipWeapon->Destroy();
 	}
     EquipWeapon = WeaponToSet; 
+}
+
+void AMainCharacter::SetActiveOverlappingItem(AItem* Item)
+{
+	UE_LOG(LogTemp, Warning, TEXT("?????"));
+	if (Item) {
+		UE_LOG(LogTemp, Warning, TEXT("Yes"));
+		ActiveOverlappingItem = Item;
+		LMBDown();
+	}
+	else{
+		UE_LOG(LogTemp, Warning, TEXT("NOOOO"));
+	}
+
+	
+
+}
+
+void AMainCharacter::CallItemEquip()
+{
+	if (MainPlayerController) {
+		MainPlayerController->ViewItemEquipMenu();
+	}
+}
+
+void AMainCharacter::UnCallItemEquip()
+{
+	if (MainPlayerController) {
+		MainPlayerController->UnableItemEquipMenu();
+	}
+}
+
+void AMainCharacter::EquipOn(AWeapon* weapon)
+{
+	SetActiveOverlappingItem(weapon);
+}
+
+void AMainCharacter::EquipSave()
+{
+}
+
+void AMainCharacter::CallItemPotion()
+{
+	if (MainPlayerController) {
+		MainPlayerController->ViewItemPotionMenu();
+	}
+}
+
+void AMainCharacter::UnCallItemPotion()
+{
+	if (MainPlayerController) {
+		MainPlayerController->UnableItemPotionMenu();
+	}
+}
+
+void AMainCharacter::PotionUse(AItem* Item)
+{
+}
+
+void AMainCharacter::PotionSave()
+{
 }
 
 // montage 만들었던것 사용시
