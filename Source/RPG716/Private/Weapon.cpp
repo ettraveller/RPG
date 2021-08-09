@@ -35,7 +35,12 @@ AWeapon::AWeapon()
     Damage = 25.f;
 
     bItemEquipDown = false;
+
+ 
 }
+
+
+
 
 void AWeapon::BeginPlay()
 {
@@ -56,12 +61,30 @@ void AWeapon::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* O
         AMainCharacter* Main = Cast<AMainCharacter>(OtherActor);
         if (Main)
         {
-            UE_LOG(LogTemp, Warning, TEXT("OnOverlapBegin Euqip!!"));
+            Main->setWeapon(this);
+            if (Main->CallItemEquip(false, this)) {
+               
+                bItemEquipDown = true;
+                
+                //Main->SetActiveOverlappingItem(this);
+            }
+            else {
+                return;
+            }
+            /*UE_LOG(LogTemp, Warning, TEXT("OnOverlapBegin Euqip!!"));
             bItemEquipDown = true;
-            Main->CallItemEquip();
+            Main->CallItemEquip();*/
             
             //Equip(Main);
             //Main->SetActiveOverlappingItem(this);
+            
+            
+
+           // Main->AddItem(this);
+
+            /*Main->AddToInventory(this);
+
+            GEngine->AddOnScreenDebugMessage(1, 3, FColor::Green, *ThumbnailName);*/
         }
     }
 }
@@ -165,3 +188,6 @@ void AWeapon::DeactivateCollision()
 {
     CombatCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
+
+
+

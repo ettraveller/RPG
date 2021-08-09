@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/SaveGame.h"
+#include "Item.h"
 #include "RPGSaveGame.generated.h"
 
 /**
@@ -41,6 +42,9 @@ struct FCharacterStats
 
 	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
 	FString LevelName;
+
+	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
+	TArray<AItem*> InventoryArray;
 
 };
 

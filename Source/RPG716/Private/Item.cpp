@@ -6,6 +6,7 @@
 #include <Components/StaticMeshComponent.h>
 #include <Particles/ParticleSystemComponent.h>
 #include "Kismet/GameplayStatics.h"
+#include "Net/UnrealNetwork.h"
 #include "Engine/World.h"
 
 
@@ -19,6 +20,7 @@ AItem::AItem()
 	// item 에 겹쳤을때 행동 함수 설정
 	CollisionVolume = CreateDefaultSubobject<USphereComponent>(TEXT("CollsionVolume"));
 	RootComponent = CollisionVolume;
+	Thumbnail = CreateDefaultSubobject<UTexture2D>("Thumbnail");
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	Mesh->SetupAttachment(GetRootComponent());
@@ -28,6 +30,17 @@ AItem::AItem()
 
 	bRotate = false;
 	RotationRate = 45.f;
+
+	ObjectPickedUp = false;
+
+}
+
+void AItem::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
+{
+
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AItem, ObjectPickedUp);
 
 }
 
@@ -40,6 +53,8 @@ void AItem::BeginPlay()
 	CollisionVolume->OnComponentEndOverlap.AddDynamic(this, &AItem::OnOverlapEnd);
 	
 }
+
+
 
 // Called every frame
 void AItem::Tick(float DeltaTime)
@@ -70,3 +85,22 @@ void AItem::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* Other
 	//UE_LOG(LogTemp, Warning, TEXT("Super::Item Overlap End!"));
 }
 
+void AItem::OnRep_PickUp()
+{
+	// 추가된 충돌체( item ) 을 숨기고 충돌 없애기
+	this->Mesh->SetHiddenInGame(ObjectPickedUp);
+	this->SetActorEnableCollision(!ObjectPickedUp);
+}
+
+void AItem::Inventory(bool In)
+{
+	// 아이템 픽업되게 함.
+	ObjectPickedUp = In;
+	OnRep_PickUp();
+
+}
+
+UTexture2D* AItem::GetItmeIcon()
+{
+	return Thumbnail;
+}

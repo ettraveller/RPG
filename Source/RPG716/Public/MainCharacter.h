@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Enemy.h"
+#include "PickUp.h"
 #include "MainCharacter.generated.h"
 
 
@@ -12,6 +13,8 @@
 //단, 여기서 주의해야할 점이 있는데, 언리얼 열거형을 만들때 반드시 일반적인 enum이 아닌 enum class로 만들어야 한다는 점이다.
 //만약 enum class로 만들지 않고 일반적인 enum으로 만들어서 UENUM() 매크로를 붙이고 컴파일을 하면 에러가 발생해서 컴파일에 실패한다.
 //그리고 UENUM은 uint8만을 지원하기 때문에 이 부분도 빠뜨리지 않고 넣어주어야 한다.
+
+
 
 
 UENUM(BlueprintType)
@@ -38,6 +41,9 @@ enum class EStaminaStatus : uint8
 	ESS_Max UMETA(DisplayName = "ESS_DefaultMax"),
 
 };
+
+//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FUpdateInvnetoryDelegate, const TArray<AItem*>&, InvnetoryItems);
+
 
 //Character의 rootcomp는 capsule밖에 안댐
 UCLASS()
@@ -150,6 +156,10 @@ public:
 
 
 
+	// 인벤토리 Tarray
+	//TArray<AItem*> _inventory;
+	TArray<AItem*> Inventory;
+
 
 protected:
 	// Called when the game starts or when spawned
@@ -234,6 +244,11 @@ public:
 	void InventoryUp();
 	bool bInventoryDown;
 
+	//Pickup
+	void PickUpItemDown();
+	void PickUpItemUp();
+	bool bPickUpItem;
+
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
@@ -245,32 +260,61 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Items")
 	class AItem* ActiveOverlappingItem;
 
+	// Weapon 장비 객체를 따로 받아옴
 	void SetEquipWeapon(AWeapon* WeaponToSet);
-	FORCEINLINE AWeapon* GetEquipWeapon() { return EquipWeapon; }
+	FORCEINLINE AWeapon* GetEquipWeapon() {return EquipWeapon; }
+	FORCEINLINE void SetActiveOverlappingItem(AItem* Item) {ActiveOverlappingItem = Item; }
+	//void SetActiveOverlappingItem(AActor* OtherActor);
+
+	// 포션 사용 여부 확인시에 필요
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Items")
+	class APickUp* PickUpItem;
+
+	FString GetPotionNameValue;
+
 	UFUNCTION(BlueprintCallable)
-	void SetActiveOverlappingItem(AItem* Item);
+	void SetPotion(APickUp* PickUpToSet, FString PositonName) {PickUpItem = PickUpToSet; GetPotionNameValue = PositonName;}
+	FORCEINLINE APickUp* GetPickUp() { return PickUpItem;}
+
+	UFUNCTION(BlueprintCallable)
+	FString GetPotionName() {return GetPotionNameValue;}
 
 
 	// 장비 득템시 HUD
 	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equip")
-	void CallItemEquip();
+	UFUNCTION(BlueprintCallable)
+	bool CallItemEquip(bool result, AItem* Item);
+
+	/*UFUNCTION(BlueprintCallable)
+	AItem* CallItemEquip(AItem* Item);*/
 	
 	void UnCallItemEquip();
 
+	AWeapon* AttachWeapon;
 	UFUNCTION(BlueprintCallable)
-	void EquipOn(AWeapon* weapon);
+	void setWeapon(AWeapon* Weapon) {AttachWeapon = Weapon;}
+	FORCEINLINE AWeapon* GetWeapon() {return AttachWeapon;}
+
+	UFUNCTION(BlueprintCallable)
+	void EquipOn();
 
 	UFUNCTION(BlueprintCallable)
 	void EquipSave();
 
+	UFUNCTION(BlueprintCallable)
+	void EquipOnInThumbnail();
+
 	// 물약 득템시 HUD
 	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equip")
-	void CallItemPotion();
+	void CallItemPotion(AItem* Item);
 
 	void UnCallItemPotion();
 
 	UFUNCTION(BlueprintCallable)
 	void PotionUse(AItem* Item);
+
+	UFUNCTION(BlueprintCallable)
+	void PotionUseInThumbnail();
 
 	UFUNCTION(BlueprintCallable)
 	void PotionSave();
@@ -315,5 +359,37 @@ public:
 	void LoadGameNoSwitch();
 
 	
+	////인벤토리에 아이템 추가시 
+	//void AddToInventory(AItem* Item);
+
+	//UFUNCTION(BlueprintCallable)
+	//void UpdateInventory();
+
+	//UPROPERTY(BlueprintAssignable, Category = "Item | PickUp")
+	//FUpdateInvnetoryDelegate FUpdateInvnetoryDelegate;
+
+	// 아이템 추가하기.
+	bool AddItem(class AItem* Item);
+
+	//모든 아이템 빼기
+	void DropAllInventory();
+
+	UFUNCTION(BlueprintCallable)
+	void DropItem(class AItem* Item);
+
+	// 인벤토리 드롭후에 인벤토리에서 제거하기 위해
+	bool RemoveItemFromInventory(class AItem* Item);
+
+	// BP 에서 인벤토리 아이템 가져오는 Tarray 함수
+	UFUNCTION(BlueprintCallable)
+	TArray<class AItem*> GetInventoryItems();
+
+	// BP 에서 인벤토리 아이템 갯수 가져오는 변수
+	UFUNCTION(BlueprintCallable)
+	int32 GetCurrentInventoryCount();
+
+	// 아이템을 가지고 있는지 여부 확인
+	bool CheckIfClientHasItem(class AItem* Item);
+
 
 };

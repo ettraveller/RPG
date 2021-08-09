@@ -66,7 +66,14 @@ public:
 	void DisplayEnemyHealthBar();
 	void RemoveEnemyHealthBar();
 
+	// overlap 된 몬스터 enemy 위치
 	FVector EnemyLocation;
+
+	// overlap 된 weapon 액터 위치
+	FVector WeaponLocation;
+
+	// overlap 된 Potion 액터 위치
+	FVector PotionLocation;
 
 	bool bPauseMenuVisible;
 
@@ -82,10 +89,10 @@ public:
 	void GameModeOnly();
 
 	// 인벤토리 창 이벤트
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "HUD")
+	UFUNCTION(BlueprintNativeEvent, Category = "HUD")
 	void DisplayInventoryMenu();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "HUD")
+	UFUNCTION(BlueprintNativeEvent, Category = "HUD")
 	void RemoveInvnetoryMenu();
 
 	void ToggleInventoryMenu();

@@ -71,6 +71,7 @@ AMainCharacter::AMainCharacter()
 	bLMBDown = false;
 	bESCDown = false;
 	bInventoryDown = false;
+	bPickUpItem = false;
 
 	// ENUMS 들 initialize 하는것
 	// Initialize Enums
@@ -545,7 +546,7 @@ void AMainCharacter::LMBDown()
     bLMBDown = true;
 
 	//
-
+	UE_LOG(LogTemp, Warning, TEXT("()()("));
 	// 죽으면 장비착용 비활성화 하기
 	if (MovementStatus == EMovementStatus::EMS_Dead)
 	{
@@ -554,15 +555,19 @@ void AMainCharacter::LMBDown()
 	// pausemenu 실행되고 있으면 작동 안되게 하기
 	if (MainPlayerController) if (MainPlayerController->bPauseMenuVisible) return;
 
+
 	if (ActiveOverlappingItem)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("%%%%%%%%%%%%%%%%"));
 		//UE_LOG(LogTemp, Warning, TEXT("11111111"));
 		AWeapon* Weapon = Cast<AWeapon>(ActiveOverlappingItem);
 		if (Weapon)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("^^^^^^"));
 			Weapon->Equip(this);
 			// 마우스 왼쪽 클릭시 착용가능
 			SetActiveOverlappingItem(nullptr);
+			MainPlayerController->UnableItemEquipMenu();
 		}
 	}
 	else if(EquipWeapon)
@@ -601,7 +606,7 @@ void AMainCharacter::InventoryDown()
 	bInventoryDown = true;
 	if (MainPlayerController)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Inventory Down"));
+		//UE_LOG(LogTemp, Warning, TEXT("Inventory Down"));
 		MainPlayerController->ToggleInventoryMenu();
 	}
 }
@@ -611,6 +616,17 @@ void AMainCharacter::InventoryUp()
 {
 	bInventoryDown = false;
 	
+}
+
+void AMainCharacter::PickUpItemDown()
+{
+	bPickUpItem = true;
+
+}
+
+void AMainCharacter::PickUpItemUp()
+{
+	bPickUpItem = false;
 }
 
 void AMainCharacter::SetEquipWeapon(AWeapon* WeaponToSet)
@@ -623,28 +639,23 @@ void AMainCharacter::SetEquipWeapon(AWeapon* WeaponToSet)
     EquipWeapon = WeaponToSet; 
 }
 
-void AMainCharacter::SetActiveOverlappingItem(AItem* Item)
-{
-	UE_LOG(LogTemp, Warning, TEXT("?????"));
-	if (Item) {
-		UE_LOG(LogTemp, Warning, TEXT("Yes"));
-		ActiveOverlappingItem = Item;
-		LMBDown();
-	}
-	else{
-		UE_LOG(LogTemp, Warning, TEXT("NOOOO"));
-	}
 
+
+
+bool AMainCharacter::CallItemEquip(bool result, AItem* Item)
+{
+	bool bEquipOn = result;
+	MainPlayerController->ViewItemEquipMenu();
+	FVector WLocation = Item->GetActorLocation();
+	MainPlayerController->WeaponLocation = WLocation;
+	if (Item != nullptr) {
+
+		UE_LOG(LogTemp, Warning, TEXT("%d dfsfwef" ), bEquipOn);
+	}
+	return bEquipOn;
 	
-
 }
 
-void AMainCharacter::CallItemEquip()
-{
-	if (MainPlayerController) {
-		MainPlayerController->ViewItemEquipMenu();
-	}
-}
 
 void AMainCharacter::UnCallItemEquip()
 {
@@ -653,19 +664,58 @@ void AMainCharacter::UnCallItemEquip()
 	}
 }
 
-void AMainCharacter::EquipOn(AWeapon* weapon)
+void AMainCharacter::EquipOn()
 {
-	SetActiveOverlappingItem(weapon);
+	//CPPEquipOn();
+
+	if (GetWeapon() != nullptr) {
+
+		AItem* Main = Cast<AItem>(GetWeapon());
+		SetActiveOverlappingItem(Main);
+		LMBDown();
+		
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("No have Actorxxxxx"));
+	}
 }
+
+
 
 void AMainCharacter::EquipSave()
 {
+	if (GetWeapon() != nullptr) {
+
+		AItem* Main = Cast<AItem>(GetWeapon());
+		AddItem(Main);
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("No have Actorxxxxx"));
+	}
+
 }
 
-void AMainCharacter::CallItemPotion()
+void AMainCharacter::EquipOnInThumbnail()
+{
+
+	if (GetWeapon() != nullptr) {
+
+		AItem* Main = Cast<AItem>(GetWeapon());
+		SetActiveOverlappingItem(Main);
+		LMBDown();
+		RemoveItemFromInventory(GetWeapon());
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("No have Actorxxxxx"));
+	}
+}
+
+void AMainCharacter::CallItemPotion(AItem* Item)
 {
 	if (MainPlayerController) {
 		MainPlayerController->ViewItemPotionMenu();
+		FVector WLocation = Item->GetActorLocation();
+		MainPlayerController->PotionLocation = WLocation;
 	}
 }
 
@@ -678,10 +728,27 @@ void AMainCharacter::UnCallItemPotion()
 
 void AMainCharacter::PotionUse(AItem* Item)
 {
+	GetPickUp()->Destroy();
+	MainPlayerController->UnableItemPotionMenu();
+}
+
+void AMainCharacter::PotionUseInThumbnail()
+{
+	RemoveItemFromInventory(GetPickUp());
+
 }
 
 void AMainCharacter::PotionSave()
 {
+	if (GetPickUp() != nullptr) {
+
+		AItem* Main = Cast<AItem>(GetPickUp());
+		AddItem(Main);
+		MainPlayerController->UnableItemPotionMenu();
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("No have Actorxxxxx"));
+	}
 }
 
 // montage 만들었던것 사용시
@@ -833,6 +900,9 @@ void AMainCharacter::SaveGame()
 	SaveGameInstance->CharacterStats.Stamina = Stamina;
 	SaveGameInstance->CharacterStats.MaxStamina = MaxStamina;
 	SaveGameInstance->CharacterStats.Coins = Coins;
+	SaveGameInstance->CharacterStats.InventoryArray = Inventory;
+	
+
 
 	// MapName 을 가져오긴 하나 앞에 부가적인 단어들이 있음
 	FString MapName = GetWorld()->GetMapName();
@@ -865,6 +935,7 @@ void AMainCharacter::LoadGame(bool SetPosition)
 	Stamina = LoadGameInstance->CharacterStats.Stamina;
 	MaxStamina = LoadGameInstance->CharacterStats.MaxStamina;
 	Coins = LoadGameInstance->CharacterStats.Coins;
+	Inventory = LoadGameInstance->CharacterStats.InventoryArray;
 
 	if (WeaponStorage)
 	{
@@ -915,6 +986,7 @@ void AMainCharacter::LoadGameNoSwitch()
 	Stamina = LoadGameInstance->CharacterStats.Stamina;
 	MaxStamina = LoadGameInstance->CharacterStats.MaxStamina;
 	Coins = LoadGameInstance->CharacterStats.Coins;
+	Inventory = LoadGameInstance->CharacterStats.InventoryArray;
 
 	if (WeaponStorage)
 	{
@@ -939,4 +1011,116 @@ void AMainCharacter::LoadGameNoSwitch()
 	GetMesh()->bNoSkeletonUpdate = false;
 }
 
+bool AMainCharacter::AddItem(AItem* Item)
+{
+	
+	//Inventory.RemoveAt(0);
+	Inventory.Add(Item);
+	
+	Item->Inventory(true);
 
+	Item->SetActorHiddenInGame(true);
+	Item->SetActorEnableCollision(false);
+
+	//Item->Destroy();
+	
+
+	for (AItem* PickUp : Inventory) {
+		UE_LOG(LogTemp, Warning, TEXT("Item add : %s"), *PickUp->GetName());
+	}
+
+	// 비교 하는중에 getname() e
+
+	UE_LOG(LogTemp, Warning, TEXT("END OF ITEMS"));
+	
+	return false;
+}
+
+// 인벤토리에 있는 아이템 모두 내놓게 하기
+void AMainCharacter::DropAllInventory()
+{
+	for (AItem* Pickup : Inventory) {
+
+		DropItem(Pickup);
+	}
+	Inventory.Empty();
+}
+
+void AMainCharacter::DropItem(AItem* Item)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Drop!!!"));
+
+	FVector Location = GetOwner()->GetActorLocation();
+	Location.X += FMath::FRandRange(-50.0f, 100.0f);
+	Location.Y += FMath::FRandRange(-50.0f, 100.0f);
+
+	// { 여기서 부터 다음번 가로까지는 높은 모서리같은곳에서 죽었을시 가지고있는 아이템 공중에 계속 띄우지 않고 떨어트리게 하는것.
+	FVector EndRay = Location;
+	EndRay.Z -= 500.0f;
+
+	FHitResult HitResult;
+	FCollisionObjectQueryParams ObjQuery;
+	FCollisionQueryParams CollsionParams;
+	CollsionParams.AddIgnoredActor(GetOwner());
+
+	GetWorld()->LineTraceSingleByObjectType(
+
+		OUT HitResult,
+		Location,
+		EndRay,
+		ObjQuery,
+		CollsionParams
+
+	);
+
+	if (HitResult.ImpactPoint != FVector::ZeroVector) {
+		Location = HitResult.ImpactPoint;
+	}
+	// }
+	Item->SetActorLocation(Location);
+	// 그리고 인벤토리에서 나온 아이템은 픽업 안되게 해둠
+	Item->Inventory(false);
+
+	RemoveItemFromInventory(Item);
+}
+
+// 아이템을 가지고 있으면서 드롭버튼을 누르면 아이템 삭제
+bool AMainCharacter::RemoveItemFromInventory(AItem* Item)
+{
+
+	int32 Counter = 0;
+	for (AItem* Pickup : Inventory)
+	{
+		if (Pickup == Item) {
+
+			Inventory.RemoveAt(Counter);
+			return true;
+
+		}
+		++Counter;
+	}
+	return false;
+}
+
+TArray<class AItem*> AMainCharacter::GetInventoryItems()
+{
+	return Inventory;
+}
+
+int32 AMainCharacter::GetCurrentInventoryCount()
+{
+	return  Inventory.Num() - 1;
+}
+
+bool AMainCharacter::CheckIfClientHasItem(AItem* Item)
+{
+	for (AItem* Pickup : Inventory)
+	{
+		if (Pickup == Item) {
+
+			return true;
+
+		}
+	}
+	return false;
+}
